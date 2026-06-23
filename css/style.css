@@ -1,0 +1,132 @@
+/*
+  SIMPLE MAGAZINE - VERSION 2
+  This file controls the colors, fonts, spacing, and sizes.
+*/
+
+/* STYLE THE WHOLE PAGE */
+body {
+  background-color: #f4f7fb;
+  color: #222222;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+}
+
+/* Use a different font for headings. */
+h1,
+h2,
+h3,
+.navbar-brand {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+h1 {
+  font-size: 48px;
+}
+
+h2 {
+  font-size: 30px;
+}
+
+h3 {
+  font-size: 24px;
+}
+
+/* HOME PAGE HEADER */
+.page-header {
+  background-color: #dbeafe;
+  padding: 80px 20px;
+}
+
+.page-header p {
+  font-size: 20px;
+}
+
+/* TOPIC CARDS */
+.topic-card {
+  border-radius: 8px;
+  color: white;
+  height: 100%;
+  padding: 30px;
+}
+
+.topic-blue {
+  background-color: #2563eb;
+}
+
+.topic-green {
+  background-color: #16835b;
+}
+
+.topic-orange {
+  background-color: #c65718;
+}
+
+.welcome-box {
+  background-color: white;
+  border-left: 8px solid #0d6efd;
+  padding: 30px;
+}
+
+/* MEMBER PAGE */
+.small-header {
+  background-color: #fff1c7;
+  padding: 45px 20px;
+}
+
+.form-box,
+.member-box,
+.json-box {
+  background-color: white;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  padding: 25px;
+}
+
+.form-label {
+  font-weight: bold;
+}
+
+.search-input {
+  max-width: 220px;
+}
+
+.member-contact {
+  color: #555555;
+  font-size: 14px;
+}
+
+.action-buttons {
+  white-space: nowrap;
+}
+
+.action-buttons button {
+  margin: 2px;
+}
+
+/* JSON DISPLAY */
+pre {
+  background-color: #222222;
+  border-radius: 5px;
+  color: #b8f7c8;
+  max-height: 300px;
+  overflow: auto;
+  padding: 15px;
+}
+
+/*
+  On screens smaller than 576 pixels, make the main heading smaller.
+  This helps the site fit on phones.
+*/
+@media (max-width: 575px) {
+  h1 {
+    font-size: 36px;
+  }
+
+  .page-header {
+    padding: 50px 15px;
+  }
+
+  .search-input {
+    max-width: 100%;
+  }
+}

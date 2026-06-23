@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Magazine | Home</title>
+
+  <!-- Bootstrap gives us a responsive grid, buttons, and navigation. -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- This connects our own CSS file to this page. -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- NAVIGATION MENU -->
+  <nav class="navbar navbar-expand-md navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Simple Magazine</a>
+
+      <!-- This button appears on small screens. -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Open navigation menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainMenu">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#topics">Topics</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="members.html">Member Sign-Up</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <header class="page-header text-center">
+    <div class="container">
+      <h1>Welcome to Simple Magazine</h1>
+      <p class="lead">Easy-to-read stories about everyday life, learning, and technology.</p>
+      <a class="btn btn-warning btn-lg" href="members.html">Become a Member</a>
+    </div>
+  </header>
+
+  <!-- MAGAZINE TOPICS -->
+  <main class="container my-5" id="topics">
+    <h2 class="text-center mb-4">This Month's Topics</h2>
+
+    <!-- Bootstrap divides this row into three columns on larger screens. -->
+    <div class="row g-4">
+      <div class="col-md-4">
+        <article class="topic-card topic-blue">
+          <h3>Technology</h3>
+          <p>Learn how simple digital tools can make daily tasks easier.</p>
+          <a href="#" class="btn btn-light">Read More</a>
+        </article>
+      </div>
+
+      <div class="col-md-4">
+        <article class="topic-card topic-green">
+          <h3>Learning</h3>
+          <p>Discover useful study habits and ideas for lifelong learning.</p>
+          <a href="#" class="btn btn-light">Read More</a>
+        </article>
+      </div>
+
+      <div class="col-md-4">
+        <article class="topic-card topic-orange">
+          <h3>Community</h3>
+          <p>Meet people who are making a positive difference close to home.</p>
+          <a href="#" class="btn btn-light">Read More</a>
+        </article>
+      </div>
+    </div>
+
+    <section class="welcome-box mt-5">
+      <h2>A magazine for everyone</h2>
+      <p>Simple Magazine shares friendly, useful stories without making things complicated. Join our member list to stay connected.</p>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-dark text-white text-center py-4">
+    <p class="mb-0">&copy; 2026 Simple Magazine</p>
+  </footer>
+
+  <!-- Bootstrap JavaScript makes the mobile navigation button work. -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
