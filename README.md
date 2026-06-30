@@ -67,15 +67,3 @@ Bootstrap is loaded from the internet. It supplies the responsive columns, navig
 
 ## Save Version 2 to GitHub
 
-Create a separate repository so Version 1 remains unchanged:
-
-1. In Visual Studio Code, confirm that `the-current-version2-basic` is the open folder.
-2. Open **Source Control** from the left sidebar.
-3. Click **Initialize Repository**.
-4. Enter the commit message `Create beginner magazine version 2`.
-5. Click **Commit** and approve staging all files if asked.
-6. Click **Publish Branch** or **Publish to GitHub**.
-7. Use a new repository name such as `the-current-magazine-version2-basic`.
-8. Choose private or public visibility.
-
-Do not publish Version 2 from inside the Version 1 repository. Each version should have its own folder and repository.
