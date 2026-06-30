@@ -65,5 +65,3 @@ Only `members.html` connects to `js/members.js`. JavaScript reads the form, vali
 
 Bootstrap is loaded from the internet. It supplies the responsive columns, navigation, buttons, form controls, and table styling. The website needs an internet connection for Bootstrap to load.
 
-## Save Version 2 to GitHub
-
