@@ -34,9 +34,103 @@
   </header>
 
   <main class="container my-5">
-    <section class="form-box">
-      <h2>To add...</h2>
-      <p>Entries logic</p>
+    <div id="messageBox" class="alert d-none" role="alert"></div>
+    <div class="row g-4">
+      <section class="col-lg-5">
+        <div class="form-box">
+          <h2 id="formHeading">Add an Article</h2>
+          <p>Fields marked with * are required.</p>
+
+          <form id="contentForm" novalidate>
+            <input type="hidden" id="articleId">
+
+            <div class="mb-3">
+              <label for="articleCode" class="form-label">Article ID *</label>
+              <input type="text" class="form-control" id="articleCode" placeholder="Example: ART-001" required>
+              <div class="invalid-feedback">Please enter an article ID.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="articleTitle" class="form-label">Title / Description *</label>
+              <input type="text" class="form-control" id="articleTitle" placeholder="Article headline or title" required>
+              <div class="invalid-feedback">Please enter a title or description.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="articleCategory" class="form-label">Category *</label>
+              <select class="form-select" id="articleCategory" required>
+                <option value="">-- Select a category --</option>
+                <option value="Technology">Technology</option>
+                <option value="Learning">Learning</option>
+                <option value="Community">Community</option>
+                <option value="Health">Health</option>
+                <option value="Entertainment">Entertainment</option>
+              </select>
+              <div class="invalid-feedback">Please select a category.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="articleFormat" class="form-label">Format / Unit of Measure *</label>
+              <select class="form-select" id="articleFormat" required>
+                <option value="">-- Select a format --</option>
+                <option value="Feature Article">Feature Article</option>
+                <option value="How-To Guide">How-To Guide</option>
+                <option value="Profile">Profile</option>
+                <option value="Explainer">Explainer</option>
+                <option value="Resource List">Resource List</option>
+                <option value="Opinion">Opinion</option>
+              </select>
+              <div class="invalid-feedback">Please select a format.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="articlePrice" class="form-label">Price / Value ($) *</label>
+              <input type="number" class="form-control" id="articlePrice" placeholder="0.00" min="0" step="0.01" required>
+              <div class="invalid-feedback">Please enter a price (use 0 for free articles).</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="articleWordCount" class="form-label">Word Count (optional)</label>
+              <input type="number" class="form-control" id="articleWordCount" placeholder="Example: 1200" min="0">
+            </div>
+
+            <button type="submit" id="saveButton" class="btn btn-primary">Add Article</button>
+            <button type="button" id="cancelButton" class="btn btn-secondary d-none">Cancel Update</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="col-lg-7">
+        <div class="member-box">
+          <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-3">
+            <h2>Article List</h2>
+            <input type="search" id="searchInput" class="form-control search-input" placeholder="Search articles">
+          </div>
+
+          <p id="noArticlesMessage">No articles have been added yet.</p>
+
+          <div id="tableContainer" class="table-responsive d-none">
+            <table class="table table-bordered table-striped">
+              <thead class="table-primary">
+                <tr>
+                  <th>ID</th>
+                  <th>Title &amp; Category</th>
+                  <th>Format</th>
+                  <th>Price</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="articleTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="json-box mt-4">
+      <h2>Stored JSON Data</h2>
+      <p>JSON is a text format used to organize and store information. All article entries are saved here.</p>
+      <pre id="jsonDisplay">[]</pre>
     </section>
   </main>
 
