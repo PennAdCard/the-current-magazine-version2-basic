@@ -6,6 +6,9 @@
   <title>Simple Magazine | Shopping Cart</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -35,112 +38,50 @@
   </header>
 
   <main class="container my-5">
+
+    <div id="messageBox" class="alert d-none" role="alert"></div>
+
     <div class="row g-4">
+
       <section class="col-lg-8">
         <div class="cart-shell">
           <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
             <div>
               <h2>Products</h2>
-              <p class="text-muted mb-0">*Add search and cart logic</p>
+              <p class="text-muted mb-0">Search or browse articles and content items.</p>
             </div>
             <div class="input-group search-shell">
               <span class="input-group-text">🔎</span>
-              <input type="text" class="form-control" placeholder="Search products">
-              <button class="btn btn-outline-primary" type="button">Search</button>
+              <input type="text" class="form-control" id="searchInput" placeholder="Search products">
+              <button class="btn btn-outline-primary" type="button" id="searchButton">Search</button>
             </div>
           </div>
 
           <div class="d-flex flex-wrap gap-2 mb-4">
-            <span class="badge bg-primary-subtle text-primary-emphasis">All Items</span>
-            <span class="badge bg-light text-dark border">Category(ex: On Sale)</span>
-            <span class="badge bg-light text-dark border">Category...</span>
-            <span class="badge bg-light text-dark border">Category...</span>
+            <span class="badge filter-badge bg-primary-subtle text-primary-emphasis" data-category="all" style="cursor:pointer; font-size:0.85rem; padding:6px 12px;">All Items</span>
+            <span class="badge filter-badge bg-light text-dark border" data-category="Technology" style="cursor:pointer; font-size:0.85rem; padding:6px 12px;">Technology</span>
+            <span class="badge filter-badge bg-light text-dark border" data-category="Learning" style="cursor:pointer; font-size:0.85rem; padding:6px 12px;">Learning</span>
+            <span class="badge filter-badge bg-light text-dark border" data-category="Community" style="cursor:pointer; font-size:0.85rem; padding:6px 12px;">Community</span>
+            <span class="badge filter-badge bg-light text-dark border" data-category="Health" style="cursor:pointer; font-size:0.85rem; padding:6px 12px;">Health</span>
           </div>
 
-          <div class="row g-4">
-            <div class="col-md-6">
-              <article class="product-card h-100">
-                <div class="product-badge">Tag</div>
-                <h3>Item</h3>
-                <p>desc...</p>
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                  <span class="price-tag">$0.00</span>
-                  <button class="btn btn-primary" type="button">Add to Cart</button>
-                </div>
-              </article>
-            </div>
-
-            <div class="col-md-6">
-              <article class="product-card h-100">
-                <div class="product-badge">Tag</div>
-                <h3>Item</h3>
-                <p>desc...</p>
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                  <span class="price-tag">$0.00</span>
-                  <button class="btn btn-primary" type="button">Add to Cart</button>
-                </div>
-              </article>
-            </div>
-
-            <div class="col-md-6">
-              <article class="product-card h-100">
-                <div class="product-badge">Tag</div>
-                <h3>Item</h3>
-                <p>desc...</p>
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                  <span class="price-tag">$0.00</span>
-                  <button class="btn btn-primary" type="button">Add to Cart</button>
-                </div>
-              </article>
-            </div>
-
-            <div class="col-md-6">
-              <article class="product-card h-100">
-                <div class="product-badge">Tag</div>
-                <h3>Item</h3>
-                <p>desc...</p>
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                  <span class="price-tag">$0.00</span>
-                  <button class="btn btn-primary" type="button">Add to Cart</button>
-                </div>
-              </article>
-            </div>
-          </div>
+          <div class="row g-4" id="productGrid"></div>
         </div>
       </section>
 
       <aside class="col-lg-4">
         <div class="cart-summary">
           <h2>Your Cart</h2>
-          <p class="text-muted">Preview of the items the future checkout logic can manage.</p>
+          <p class="text-muted">Items you have added will appear below.</p>
 
-          <ul class="list-group mb-3">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-sm btn-danger remove-item-btn" type="button" aria-label="Remove Item">−</button>
-                <div>
-                  <strong>Item</strong>
-                  <div class="small text-muted">Qty 1</div>
-                </div>
-              </div>
-              <span>$0.00</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-sm btn-danger remove-item-btn" type="button" aria-label="Remove Item">−</button>
-                <div>
-                  <strong>Item</strong>
-                  <div class="small text-muted">Qty 1</div>
-                </div>
-              </div>
-              <span>$0.00</span>
-            </li>
+          <ul class="list-group mb-3" id="cartList">
+            <li class="list-group-item text-muted">Your cart is empty.</li>
           </ul>
 
           <div class="border-top pt-3">
             <div class="d-flex justify-content-between mb-2">
               <span>Subtotal</span>
-              <strong>$0.00</strong>
+              <strong id="cartSubtotal">$0.00</strong>
             </div>
             <div class="d-flex justify-content-between mb-2">
               <span>Shipping</span>
@@ -148,29 +89,76 @@
             </div>
             <div class="d-flex justify-content-between fs-5">
               <span>Total</span>
-              <strong>$0.00</strong>
+              <strong id="cartTotal">$0.00</strong>
             </div>
           </div>
 
-          <button class="btn btn-warning w-100 mt-3" type="button">Proceed to Checkout</button>
+          <button class="btn btn-warning w-100 mt-3" type="button" id="checkoutButton">Proceed to Checkout</button>
         </div>
 
         <div class="form-box mt-4">
           <h3>Product Details</h3>
-          <p class="text-muted">*Add form fields and validation logic</p>
+          <p class="text-muted">Fields marked with * are required.</p>
 
-          <div class="mb-3">
-            <label class="form-label">Product Name</label>
-            <input type="text" class="form-control" placeholder="Example: Shirt">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Price</label>
-            <input type="text" class="form-control" placeholder="$0.00">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea class="form-control" rows="3" placeholder="Describe the product"></textarea>
-          </div>
+          <form id="productForm" novalidate>
+
+            <div class="mb-3">
+              <label for="productId" class="form-label">Product ID *</label>
+              <input type="text" class="form-control" id="productId" placeholder="Example: PRD-001" required>
+              <div class="invalid-feedback">Please enter a product ID.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="productName" class="form-label">Product Name *</label>
+              <input type="text" class="form-control" id="productName" placeholder="Example: Technology Monthly" required>
+              <div class="invalid-feedback">Please enter a product name.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="productCategory" class="form-label">Category *</label>
+              <select class="form-select" id="productCategory" required>
+                <option value="">-- Select a category --</option>
+                <option value="Technology">Technology</option>
+                <option value="Learning">Learning</option>
+                <option value="Community">Community</option>
+                <option value="Health">Health</option>
+                <option value="Entertainment">Entertainment</option>
+              </select>
+              <div class="invalid-feedback">Please select a category.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="productFormat" class="form-label">Unit of Measure / Format *</label>
+              <select class="form-select" id="productFormat" required>
+                <option value="">-- Select a format --</option>
+                <option value="Digital Issue">Digital Issue</option>
+                <option value="Feature Article">Feature Article</option>
+                <option value="How-To Guide">How-To Guide</option>
+                <option value="Explainer">Explainer</option>
+                <option value="Resource List">Resource List</option>
+              </select>
+              <div class="invalid-feedback">Please select a format.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="productPrice" class="form-label">Price ($) *</label>
+              <input type="number" class="form-control" id="productPrice" placeholder="0.00" min="0" step="0.01" required>
+              <div class="invalid-feedback">Please enter a price (use 0 for free items).</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="productDescription" class="form-label">Description (optional)</label>
+              <textarea class="form-control" id="productDescription" rows="3" placeholder="Describe the product"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Save Product Details</button>
+          </form>
+        </div>
+
+        <div class="json-box mt-4">
+          <h3>Cart JSON Data</h3>
+          <p class="text-muted">Cart contents in JSON format, ready for the API.</p>
+          <pre id="jsonDisplay">[]</pre>
         </div>
       </aside>
     </div>
@@ -181,5 +169,7 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="js/cart.js"></script>
 </body>
 </html>
