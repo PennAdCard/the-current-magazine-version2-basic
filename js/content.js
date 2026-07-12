@@ -31,7 +31,16 @@ const savedArticleData = localStorage.getItem(storageName);
 
 if (savedArticleData !== null) {
   // JSON.parse changes JSON text back into a JavaScript array.
-  articles = JSON.parse(savedArticleData);
+  // The try/catch keeps the page working even if old saved data is damaged.
+  try {
+    const parsedArticles = JSON.parse(savedArticleData);
+
+    if (Array.isArray(parsedArticles)) {
+      articles = parsedArticles;
+    }
+  } catch (error) {
+    articles = [];
+  }
 }
 
 // Save the article array as JSON text in the browser.
@@ -220,12 +229,10 @@ cancelButton.addEventListener("click", function() {
   clearForm();
 });
 
-// jQuery Search - filters the table as the user types.
-$(document).ready(function() {
-  $("#searchInput").on("input", function() {
-    const searchText = $(this).val();
-    displayArticles(searchText);
-  });
+// Update the visible table as the user types in the search box.
+// This uses plain JavaScript, just like the Members page.
+searchInput.addEventListener("input", function() {
+  displayArticles(searchInput.value);
 });
 
 // Display any saved articles when the page first opens.

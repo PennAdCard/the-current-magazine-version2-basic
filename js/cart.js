@@ -3,6 +3,9 @@
 // jQuery is used for product search and cart manipulation.
 // AJAX is used to send the cart data to a future RESTful API.
 
+// This is the name used to save the cart information in the browser.
+const cartStorageName = "simpleMagazineCart";
+
 // This is the product data store.
 const products = [
   {
@@ -64,6 +67,27 @@ const products = [
 // Cart starts empty.
 let cart = [];
 
+// Look for previously saved cart JSON data in the browser.
+const savedCartData = localStorage.getItem(cartStorageName);
+
+if (savedCartData !== null) {
+  try {
+    const parsedCart = JSON.parse(savedCartData);
+
+    if (Array.isArray(parsedCart)) {
+      cart = parsedCart;
+    }
+  } catch (error) {
+    cart = [];
+  }
+}
+
+// Save the cart array as JSON text in the browser.
+function saveCart() {
+  const jsonText = JSON.stringify(cart);
+  localStorage.setItem(cartStorageName, jsonText);
+}
+
 // jQuery builds product cards from the catalog.
 function renderProducts(filter) {
   const search = filter ? filter.toLowerCase().trim() : "";
@@ -118,6 +142,7 @@ function renderCart() {
     $cartList.html('<li class="list-group-item text-muted">Your cart is empty.</li>');
     $("#cartSubtotal").text("$0.00");
     $("#cartTotal").text("$0.00");
+    $("#jsonDisplay").text(JSON.stringify(cart, null, 2));
     return;
   }
 
@@ -175,6 +200,7 @@ $(document).on("click", ".add-to-cart-btn", function() {
     price: product.price
   });
 
+  saveCart();
   renderCart();
   showMessage(title + " was added to your cart.", "success");
 });
@@ -184,6 +210,7 @@ $(document).on("click", ".remove-item-btn", function() {
   const index = parseInt($(this).data("index"));
   const removed = cart[index].title;
   cart.splice(index, 1);
+  saveCart();
   renderCart();
   showMessage(removed + " was removed from your cart.", "warning");
 });
@@ -234,6 +261,7 @@ $("#checkoutButton").on("click", function() {
     success: function(response) {
       showMessage("Order sent to the API successfully!", "success");
       cart = [];
+      saveCart();
       renderCart();
     },
     error: function(xhr, status, error) {

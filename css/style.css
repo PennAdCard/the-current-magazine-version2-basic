@@ -67,6 +67,336 @@ h3 {
   padding: 30px;
 }
 
+/* HOMEPAGE ARTICLE PREVIEW */
+.issue-preview {
+  background: linear-gradient(135deg, #ffffff 0%, #eef4ff 100%);
+  border: 1px solid #d8e2f0;
+  border-radius: 12px;
+  padding: 35px;
+}
+
+/* FEATURE ARTICLES */
+.article-intro {
+  background-color: #ffffff;
+  border: 1px solid #d8e2f0;
+  border-radius: 12px;
+  padding: 35px;
+}
+
+.article-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.feature-article {
+  background-color: #ffffff;
+  border: 1px solid #d8e2f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.article-page {
+  background:
+    radial-gradient(circle at top left, rgba(13, 110, 253, 0.14), transparent 28rem),
+    linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+}
+
+.article-hero {
+  color: white;
+  padding: 75px 20px;
+}
+
+.article-hero h1 {
+  font-size: 56px;
+  line-height: 1.05;
+  margin-bottom: 18px;
+}
+
+.article-hero-blue {
+  background: linear-gradient(135deg, #102a5e 0%, #2563eb 58%, #67e8f9 100%);
+}
+
+.article-hero-green {
+  background: linear-gradient(135deg, #063d2b 0%, #16835b 58%, #8ee6b0 100%);
+}
+
+.article-hero-orange {
+  background: linear-gradient(135deg, #5f2507 0%, #c65718 58%, #ffd166 100%);
+}
+
+.article-briefing-card {
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 14px;
+  padding: 25px;
+}
+
+.article-briefing-card h2 {
+  font-size: 26px;
+}
+
+.article-layout {
+  align-items: start;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: 260px minmax(0, 1fr);
+}
+
+.article-sidebar {
+  position: sticky;
+  top: 25px;
+}
+
+.sidebar-box {
+  background-color: #0f172a;
+  border-radius: 14px;
+  color: white;
+  padding: 24px;
+}
+
+.sidebar-box .section-label {
+  color: #93c5fd;
+}
+
+.sidebar-links {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.sidebar-links a {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  padding: 10px 12px;
+  text-decoration: none;
+}
+
+.sidebar-links a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.article-page-card {
+  border-radius: 16px;
+}
+
+.article-heading {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5edf8;
+  padding: 40px 45px 18px;
+}
+
+.section-label {
+  color: #0d6efd;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.article-meta {
+  color: #666666;
+  font-size: 15px;
+}
+
+.article-image {
+  margin: 0;
+}
+
+.article-image img {
+  display: block;
+  height: 430px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.article-image figcaption {
+  background-color: #eef4ff;
+  color: #4b5563;
+  font-size: 14px;
+  padding: 12px 35px;
+}
+
+.article-body {
+  padding: 38px 45px;
+}
+
+.article-body p {
+  font-size: 18px;
+  line-height: 1.8;
+  margin-bottom: 22px;
+}
+
+.article-body a {
+  font-weight: bold;
+}
+
+.article-body p:first-child::first-letter {
+  color: #0d6efd;
+  float: left;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 70px;
+  line-height: 0.8;
+  padding-right: 10px;
+}
+
+.article-summary-card {
+  background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+  border-radius: 16px;
+  color: white;
+  margin-bottom: 34px;
+  padding: 28px;
+}
+
+.article-summary-card .section-label {
+  color: #bfdbfe;
+}
+
+.article-summary-card h3 {
+  font-size: 26px;
+  margin-bottom: 16px;
+}
+
+.article-summary-card ul {
+  margin-bottom: 0;
+  padding-left: 20px;
+}
+
+.article-summary-card li {
+  margin-bottom: 8px;
+}
+
+.article-section-heading {
+  border-left: 6px solid #0d6efd;
+  color: #0f172a;
+  font-size: 32px;
+  margin: 42px 0 18px;
+  padding-left: 16px;
+}
+
+.pull-quote {
+  background-color: #f8fbff;
+  border-left: 8px solid #0d6efd;
+  color: #12305d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 30px;
+  line-height: 1.35;
+  margin: 40px 0;
+  padding: 28px 32px;
+}
+
+.inline-article-image {
+  background-color: #f8fbff;
+  border: 1px solid #d8e2f0;
+  border-radius: 14px;
+  margin: 38px 0;
+  overflow: hidden;
+}
+
+.inline-article-image img {
+  display: block;
+  height: 310px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.inline-article-image figcaption {
+  color: #4b5563;
+  font-size: 14px;
+  padding: 12px 18px;
+}
+
+.image-right,
+.image-left {
+  max-width: 390px;
+}
+
+.image-right {
+  float: right;
+  margin: 8px 0 22px 28px;
+}
+
+.image-left {
+  float: left;
+  margin: 8px 28px 22px 0;
+}
+
+.article-stat-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 36px 0;
+}
+
+.article-stat-grid div {
+  background-color: #eef4ff;
+  border: 1px solid #d8e2f0;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.article-stat-grid span {
+  color: #0d6efd;
+  display: block;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.article-stat-grid p {
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+@media (max-width: 991px) {
+  .article-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .article-sidebar {
+    position: static;
+  }
+
+  .article-hero h1 {
+    font-size: 44px;
+  }
+
+  .image-right,
+  .image-left {
+    float: none;
+    margin: 32px 0;
+    max-width: 100%;
+  }
+}
+
+.article-toggle {
+  margin: 0 35px 35px;
+}
+
+.feature-article.is-collapsed .article-body,
+.feature-article.is-collapsed .article-image,
+.feature-article.is-collapsed .article-meta {
+  display: none;
+}
+
+.reading-progress {
+  background-color: #0d6efd;
+  height: 5px;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 0;
+  z-index: 2000;
+}
+
 /* MEMBER PAGE */
 .small-header {
   background-color: #fff1c7;
@@ -177,5 +507,50 @@ pre {
 
   .search-input {
     max-width: 100%;
+  }
+
+  .article-heading,
+  .article-body {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .article-image img {
+    height: 230px;
+  }
+
+  .article-image figcaption {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .article-body p {
+    font-size: 16px;
+  }
+
+  .article-summary-card,
+  .pull-quote {
+    padding: 22px;
+  }
+
+  .pull-quote {
+    font-size: 24px;
+  }
+
+  .article-section-heading {
+    font-size: 26px;
+  }
+
+  .inline-article-image img {
+    height: 220px;
+  }
+
+  .article-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .article-toggle {
+    margin-left: 20px;
+    margin-right: 20px;
   }
 }
