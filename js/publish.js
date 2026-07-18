@@ -132,7 +132,7 @@ publishApp.controller("PublishController", function($scope, $http) {
     const submission = {
       submissionId: Date.now(),
       articleId: $scope.formData.articleId,
-      publicationDate: $scope.formData.publicationDate,
+      publicationDate: $scope.formData.publicationDate ? String($scope.formData.publicationDate).split("T")[0] : "",
       channels: angular.copy($scope.formData.channels),
       reviewStatus: $scope.formData.reviewStatus,
       editorName: $scope.formData.editorName.trim(),
