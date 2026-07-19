@@ -3,7 +3,7 @@
 // AngularJS manages the form state, submission history, and service calls.
 // jQuery loads saved articles from localStorage into the article dropdown.
 // JavaScript performs client-side field validation before submission.
-// AJAX sends the JSON payload to a future RESTful API endpoint.
+// jQuery's $.ajax() sends the JSON payload to a future RESTful API endpoint.
 
 // ANGULARJS APPLICATION
 const publishApp = angular.module("publishApp", []);
@@ -169,8 +169,10 @@ publishApp.controller("PublishController", function($scope, $http) {
     $scope.submissions.splice(index, 1);
   };
 
-  // AJAX + ANGULARJS $http - sends all submissions to a RESTful API.
+  // AJAX - sends all submissions to a RESTful API using jQuery's $.ajax().
   // The API does not exist yet; this demonstrates the transport layer.
+  // jQuery owns the AJAX call itself; AngularJS still owns the page state,
+  // so $scope.$apply() is used to bring jQuery's async result back into Angular.
   $scope.sendToApi = function() {
     if ($scope.submissions.length === 0) {
       showMessage("No submissions to send.", "warning");
@@ -184,26 +186,34 @@ publishApp.controller("PublishController", function($scope, $http) {
       submissions: $scope.submissions
     };
 
-    // AngularJS $http POST - sends the JSON payload to the API endpoint.
-    $http({
-      method: "POST",
+    // jQuery $.ajax() POST - sends the JSON payload to the API endpoint.
+    $.ajax({
       url: "https://api.example.com/publish/submit",
-      headers: { "Content-Type": "application/json" },
-      data: payload
-    }).then(
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(payload),
+
       // Success callback - API responded with 2xx.
-      function(response) {
-        showMessage("All submissions sent to the API successfully!", "success");
-        $scope.submissions = [];
+      success: function(response) {
+        $scope.$apply(function() {
+          showMessage("All submissions sent to the API successfully!", "success");
+          $scope.submissions = [];
+        });
       },
+
       // Error callback - expected since the API does not exist yet.
-      function(error) {
-        showMessage(
-          "Submissions prepared as JSON and sent to the API endpoint. (API coming in a future assignment.)",
-          "info"
-        );
+      // We still clear the sidebar so the JSON preview reflects what
+      // was actually transported, matching the cart page's behavior.
+      error: function(jqXHR, textStatus) {
+        $scope.$apply(function() {
+          showMessage(
+            "Submissions prepared as JSON and sent to the API endpoint. (API coming in a future assignment.)",
+            "info"
+          );
+          $scope.submissions = [];
+        });
       }
-    );
+    });
   };
 
   // SHOW MESSAGE - displays an alert banner using jQuery.
