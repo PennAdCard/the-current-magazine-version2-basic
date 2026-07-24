@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="editorialApp">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Simple Magazine | Editorial Review</title>
+
+  <!-- Bootstrap provides the responsive grid, navigation, buttons, and forms. -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+
+  <!-- jQuery is used for message boxes and search interaction. -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+
+  <!-- AngularJS manages the submission list and editorial review state. -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+
+  <!-- Existing project stylesheet. -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Styles used only by the editorial review page. -->
+  <style>
+    .editorial-summary {
+      background-color: #ffffff;
+      border: 1px solid #d8e2f0;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+      padding: 25px;
+      text-align: center;
+    }
+
+    .editorial-summary h3 {
+      color: #0d6efd;
+      font-size: 36px;
+      margin-bottom: 5px;
+    }
+
+    .editorial-summary p {
+      color: #6c757d;
+      margin-bottom: 0;
+    }
+
+    .editorial-filter-box {
+      background-color: #ffffff;
+      border: 1px solid #d8e2f0;
+      border-radius: 12px;
+      padding: 25px;
+    }
+
+    .submission-card {
+      background-color: #ffffff;
+      border: 1px solid #d8e2f0;
+      border-left: 8px solid #0d6efd;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+      padding: 25px;
+    }
+
+    .submission-card.status-approved {
+      border-left-color: #198754;
+    }
+
+    .submission-card.status-rejected {
+      border-left-color: #dc3545;
+    }
+
+    .submission-card.status-revision {
+      border-left-color: #ffc107;
+    }
+
+    .submission-card.status-pending {
+      border-left-color: #0d6efd;
+    }
+
+    .submission-details {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      margin-top: 18px;
+      padding: 18px;
+    }
+
+    .submission-details p {
+      margin-bottom: 8px;
+    }
+
+    .submission-content {
+      background-color: #f8fbff;
+      border-left: 5px solid #adb5bd;
+      margin-top: 18px;
+      padding: 18px;
+      white-space: pre-line;
+    }
+
+    .current-editor-notes {
+      background-color: #fff8db;
+      border-left: 5px solid #ffc107;
+      margin-top: 18px;
+      padding: 15px;
+    }
+
+    .empty-submissions {
+      background-color: #ffffff;
+      border: 2px dashed #b8c4d6;
+      border-radius: 12px;
+      color: #6c757d;
+      padding: 50px 20px;
+      text-align: center;
+    }
+
+    .loading-submissions {
+      background-color: #ffffff;
+      border: 1px solid #d8e2f0;
+      border-radius: 12px;
+      padding: 50px 20px;
+      text-align: center;
+    }
+
+    .editorial-actions {
+      border-top: 1px solid #dee2e6;
+      margin-top: 20px;
+      padding-top: 20px;
+    }
+
+    .status-badge {
+      font-size: 14px;
+      padding: 9px 13px;
+    }
+
+    .character-count {
+      color: #6c757d;
+      font-size: 13px;
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    .api-information {
+      background-color: #0f172a;
+      border-radius: 12px;
+      color: #ffffff;
+      padding: 25px;
+    }
+
+    .api-information h2,
+    .api-information h3 {
+      color: #93c5fd;
+    }
+
+    .api-information code {
+      color: #bfdbfe;
+    }
+
+    .api-information pre {
+      background-color: #020617;
+      border-radius: 8px;
+      color: #dbeafe;
+      margin-bottom: 0;
+      overflow-x: auto;
+      padding: 15px;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 767px) {
+      .submission-card {
+        padding: 20px;
+      }
+
+      .editorial-summary {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body ng-controller="EditorialController">
+
+  <!-- NAVIGATION MENU -->
+  <nav class="navbar navbar-expand-md navbar-dark bg-primary">
+    <div class="container">
+
+      <a class="navbar-brand" href="index.html">
+        Simple Magazine
+      </a>
+
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainMenu"
+        aria-controls="mainMenu"
+        aria-expanded="false"
+        aria-label="Open navigation menu"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainMenu">
+        <ul class="navbar-nav ms-auto">
+
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              Home
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="content.html">
+              Content &amp; Products
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="members.html">
+              Member Sign-Up
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="cart.html">
+              Shopping Cart
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="publish.html">
+              Publish Options
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              class="nav-link active"
+              href="editorial.html"
+              aria-current="page"
+            >
+              Editorial Review
+            </a>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <header class="small-header text-center">
+    <div class="container">
+      <h1>Editorial Review</h1>
+
+      <p>
+        Review submitted magazine articles and approve, reject,
+        or request revisions.
+      </p>
+    </div>
+  </header>
+
+  <main class="container my-5">
+
+    <!-- jQuery and AngularJS use this box to display messages. -->
+    <div
+      id="messageBox"
+      class="alert d-none"
+      role="alert"
+    ></div>
+
+    <!-- PAGE INTRODUCTION -->
+    <section class="article-intro mb-4">
+      <div
+        class="d-flex flex-column flex-md-row
+               justify-content-between align-items-md-center gap-3"
+      >
+        <div>
+          <h2>Article Approval Workflow</h2>
+
+          <p class="mb-0">
+            Submitted articles are retrieved from the Node.js REST service
+            using an AJAX request.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          ng-click="loadSubmissions()"
+          ng-disabled="isLoading"
+        >
+          <span ng-show="!isLoading">
+            Refresh Submissions
+          </span>
+
+          <span ng-show="isLoading">
+            Loading...
+          </span>
+        </button>
+      </div>
+    </section>
+
+    <!-- STATUS SUMMARY -->
+    <section class="row g-3 mb-4">
+
+      <div class="col-6 col-lg-3">
+        <div class="editorial-summary">
+          <h3>{{ getStatusCount('Pending') }}</h3>
+          <p>Pending</p>
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <div class="editorial-summary">
+          <h3>{{ getStatusCount('Approved') }}</h3>
+          <p>Approved</p>
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <div class="editorial-summary">
+          <h3>{{ getStatusCount('Rejected') }}</h3>
+          <p>Rejected</p>
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <div class="editorial-summary">
+          <h3>{{ getStatusCount('Revision Requested') }}</h3>
+          <p>Revisions</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SEARCH AND FILTER CONTROLS -->
+    <section class="editorial-filter-box mb-4">
+      <div class="row g-3 align-items-end">
+
+        <div class="col-md-7">
+          <label for="searchInput" class="form-label">
+            Search Submissions
+          </label>
+
+          <input
+            type="text"
+            class="form-control"
+            id="searchInput"
+            ng-model="searchText"
+            placeholder="Search by article, editor, status, or ID"
+          >
+        </div>
+
+        <div class="col-md-4">
+          <label for="statusFilter" class="form-label">
+            Filter by Status
+          </label>
+
+          <select
+            class="form-select"
+            id="statusFilter"
+            ng-model="statusFilter"
+          >
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="In Review">In Review</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+
+            <option value="Revision Requested">
+              Revision Requested
+            </option>
+
+            <option value="Ready to Publish">
+              Ready to Publish
+            </option>
+          </select>
+        </div>
+
+        <div class="col-md-1">
+          <button
+            type="button"
+            class="btn btn-outline-secondary w-100"
+            ng-click="clearFilters()"
+            title="Clear filters"
+          >
+            Clear
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- LOADING MESSAGE -->
+    <section
+      class="loading-submissions"
+      ng-show="isLoading"
+    >
+      <div
+        class="spinner-border text-primary"
+        role="status"
+      >
+        <span class="visually-hidden">
+          Loading...
+        </span>
+      </div>
+
+      <p class="mt-3 mb-0">
+        Retrieving submissions from the REST service...
+      </p>
+    </section>
+
+    <!-- ERROR MESSAGE -->
+    <section
+      class="alert alert-danger"
+      ng-show="loadError && !isLoading"
+    >
+      <h2 class="h4">Unable to Load Submissions</h2>
+
+      <p class="mb-2">
+        {{ loadError }}
+      </p>
+
+      <button
+        type="button"
+        class="btn btn-danger"
+        ng-click="loadSubmissions()"
+      >
+        Try Again
+      </button>
+    </section>
+
+    <!-- EMPTY SUBMISSION LIST -->
+    <section
+      class="empty-submissions"
+      ng-show="
+        !isLoading &&
+        !loadError &&
+        getFilteredSubmissions().length === 0
+      "
+    >
+      <h2>No Submissions Found</h2>
+
+      <p class="mb-0">
+        There are no submissions matching the current search and status
+        filters.
+      </p>
+    </section>
+
+    <!-- DYNAMIC ANGULARJS SUBMISSION LIST -->
+    <section
+      class="submission-card mb-4"
+      ng-repeat="
+        submission in getFilteredSubmissions()
+        track by submission.id
+      "
+      ng-class="{
+        'status-pending':
+          submission.status === 'Pending' ||
+          submission.status === 'In Review',
+
+        'status-approved':
+          submission.status === 'Approved' ||
+          submission.status === 'Ready to Publish',
+
+        'status-rejected':
+          submission.status === 'Rejected',
+
+        'status-revision':
+          submission.status === 'Revision Requested'
+      }"
+    >
+
+      <!-- SUBMISSION HEADING -->
+      <div
+        class="d-flex flex-column flex-md-row
+               justify-content-between align-items-md-start gap-3"
+      >
+        <div>
+          <p class="section-label mb-1">
+            Submission {{ submission.id }}
+          </p>
+
+          <h2 class="mb-1">
+            {{ submission.articleTitle || submission.title ||
+               submission.articleId || 'Magazine Article' }}
+          </h2>
+
+          <p class="text-muted mb-1">
+            Article ID:
+            <strong>
+              {{ submission.articleId || submission.articleCode ||
+                 submission.id }}
+            </strong>
+          </p>
+
+          <p
+            class="small text-muted mb-0"
+            ng-show="submission.submittedAt"
+          >
+            Submitted:
+            {{ formatDate(submission.submittedAt) }}
+          </p>
+        </div>
+
+        <span
+          class="badge status-badge"
+          ng-class="getStatusClass(submission.status)"
+        >
+          {{ submission.status || 'Pending' }}
+        </span>
+      </div>
+
+      <!-- SUBMISSION DETAILS -->
+      <div class="submission-details">
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <p>
+              <strong>Publication Date:</strong><br>
+              {{ formatPublicationDate(submission.publicationDate) }}
+            </p>
+          </div>
+
+          <div class="col-md-6">
+            <p>
+              <strong>Submitted Editor:</strong><br>
+              {{ submission.editorName || 'Not provided' }}
+            </p>
+          </div>
+
+          <div class="col-md-6">
+            <p>
+              <strong>Editor Email:</strong><br>
+
+              <a
+                ng-if="submission.editorEmail"
+                ng-href="mailto:{{ submission.editorEmail }}"
+              >
+                {{ submission.editorEmail }}
+              </a>
+
+              <span ng-if="!submission.editorEmail">
+                Not provided
+              </span>
+            </p>
+          </div>
+
+          <div class="col-md-6">
+            <p class="mb-1">
+              <strong>Distribution Channels:</strong>
+            </p>
+
+            <span
+              class="badge bg-primary me-1"
+              ng-show="submission.channels.web"
+            >
+              Website
+            </span>
+
+            <span
+              class="badge bg-success me-1"
+              ng-show="submission.channels.email"
+            >
+              Email
+            </span>
+
+            <span
+              class="badge bg-warning text-dark me-1"
+              ng-show="submission.channels.social"
+            >
+              Social Media
+            </span>
+
+            <span
+              class="badge bg-secondary me-1"
+              ng-show="submission.channels.print"
+            >
+              Print
+            </span>
+
+            <span
+              class="text-muted"
+              ng-show="!hasChannels(submission)"
+            >
+              No channels selected
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ARTICLE CONTENT OR SUMMARY -->
+      <div
+        class="submission-content"
+        ng-show="submission.content || submission.contentSnippet"
+      >
+        <strong>Article Content:</strong>
+
+        <p class="mb-0 mt-2">
+          {{ submission.content || submission.contentSnippet }}
+        </p>
+      </div>
+
+      <!-- ORIGINAL SUBMISSION NOTES -->
+      <div
+        class="submission-content"
+        ng-show="submission.editorialNotes"
+      >
+        <strong>Submission Notes:</strong>
+
+        <p class="mb-0 mt-2">
+          {{ submission.editorialNotes }}
+        </p>
+      </div>
+
+      <!-- PREVIOUS REVIEW NOTES -->
+      <div
+        class="current-editor-notes"
+        ng-show="submission.reviewNotes"
+      >
+        <strong>Current Review Notes:</strong>
+
+        <p class="mb-0 mt-2">
+          {{ submission.reviewNotes }}
+        </p>
+      </div>
+
+      <!-- EDITORIAL ACTION FORM -->
+      <div class="editorial-actions">
+
+        <label
+          class="form-label"
+          for="reviewNotes-{{ submission.id }}"
+        >
+          Editorial Review Notes
+        </label>
+
+        <textarea
+          class="form-control"
+          id="reviewNotes-{{ submission.id }}"
+          rows="4"
+          maxlength="500"
+          ng-model="submission.reviewInput"
+          placeholder="Enter feedback for the author. Notes are required when rejecting or requesting revisions."
+        ></textarea>
+
+        <div class="character-count">
+          {{ submission.reviewInput.length || 0 }} / 500 characters
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mt-3">
+
+          <button
+            type="button"
+            class="btn btn-success"
+            ng-click="updateStatus(submission, 'Approved')"
+            ng-disabled="submission.isUpdating"
+          >
+            Approve
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-danger"
+            ng-click="updateStatus(submission, 'Rejected')"
+            ng-disabled="submission.isUpdating"
+          >
+            Reject
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-warning"
+            ng-click="
+              updateStatus(
+                submission,
+                'Revision Requested'
+              )
+            "
+            ng-disabled="submission.isUpdating"
+          >
+            Request Revisions
+          </button>
+
+          <span
+            class="text-muted align-self-center"
+            ng-show="submission.isUpdating"
+          >
+            Updating submission...
+          </span>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- TECHNICAL REQUIREMENTS EXAMPLE -->
+    <section class="api-information mt-5">
+      <h2>REST and JSON Workflow</h2>
+
+      <p>
+        AngularJS uses AJAX to retrieve and update submissions through
+        the Node.js RESTful service.
+      </p>
+
+      <div class="row g-4">
+
+        <div class="col-lg-6">
+          <h3 class="h5">REST Endpoints</h3>
+
+          <p>
+            <code>GET /api/submissions</code><br>
+            Retrieves the editorial submission list.
+          </p>
+
+          <p>
+            <code>PATCH /api/submissions/:id</code><br>
+            Approves, rejects, or requests revisions.
+          </p>
+        </div>
+
+        <div class="col-lg-6">
+          <h3 class="h5">Selected Submission JSON</h3>
+
+          <pre>{{ selectedSubmission | json }}</pre>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-dark text-white text-center py-4">
+    <p class="mb-0">
+      &copy; 2026 Simple Magazine
+    </p>
+  </footer>
+
+  <!-- Bootstrap JavaScript makes the mobile navigation menu work. -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Editorial page AngularJS and Node.js code. -->
+  <script src="js/editorial.js"></script>
+</body>
+</html>
