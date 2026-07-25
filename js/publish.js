@@ -3,7 +3,7 @@
 // AngularJS manages the form state, submission history, and service calls.
 // jQuery loads saved articles from localStorage into the article dropdown.
 // JavaScript performs client-side field validation before submission.
-// jQuery's $.ajax() sends the JSON payload to a future RESTful API endpoint.
+// jQuery's $.ajax() sends the JSON payload to the Node.js RESTful API endpoint.
 
 // ANGULARJS APPLICATION
 const publishApp = angular.module("publishApp", []);
@@ -169,8 +169,10 @@ publishApp.controller("PublishController", function($scope, $http) {
     $scope.submissions.splice(index, 1);
   };
 
-  // AJAX - sends all submissions to a RESTful API using jQuery's $.ajax().
-  // The API does not exist yet; this demonstrates the transport layer.
+  // AJAX - sends all submissions to the real Node.js RESTful API
+  // built in editorial.js, using jQuery's $.ajax().
+  // Each submission is sent as its own POST request to /api/submissions
+  // so it lands in the Editorial Review queue as a Pending item.
   // jQuery owns the AJAX call itself; AngularJS still owns the page state,
   // so $scope.$apply() is used to bring jQuery's async result back into Angular.
   $scope.sendToApi = function() {
@@ -179,41 +181,53 @@ publishApp.controller("PublishController", function($scope, $http) {
       return;
     }
 
-    // Build the full JSON payload.
-    const payload = {
-      timestamp: new Date().toISOString(),
-      totalSubmissions: $scope.submissions.length,
-      submissions: $scope.submissions
-    };
+    // Build one AJAX request per submission, shaped to match what the
+    // Node.js backend's normalizeSubmission() function expects.
+    const sendPromises = $scope.submissions.map(function(submission) {
+      const payload = {
+        articleId: submission.articleId,
+        articleCode: submission.articleId,
+        articleTitle: submission.articleId,
+        publicationDate: submission.publicationDate,
+        channels: submission.channels,
+        editorName: submission.editorName,
+        editorEmail: submission.editorEmail,
+        editorialNotes: submission.editorialNotes,
+        status: "Pending"
+      };
 
-    // jQuery $.ajax() POST - sends the JSON payload to the API endpoint.
-    $.ajax({
-      url: "https://api.example.com/publish/submit",
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify(payload),
+      // jQuery $.ajax() POST - sends the JSON payload to the Node.js
+      // REST endpoint created in editorial.js.
+      return $.ajax({
+        url: "/api/submissions",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload)
+      });
+    });
 
-      // Success callback - API responded with 2xx.
-      success: function(response) {
-        $scope.$apply(function() {
-          showMessage("All submissions sent to the API successfully!", "success");
-          $scope.submissions = [];
-        });
-      },
-
-      // Error callback - expected since the API does not exist yet.
-      // We still clear the sidebar so the JSON preview reflects what
-      // was actually transported, matching the cart page's behavior.
-      error: function(jqXHR, textStatus) {
+    // Wait for every submission to finish sending before updating the page.
+    $.when.apply($, sendPromises)
+      .done(function() {
         $scope.$apply(function() {
           showMessage(
-            "Submissions prepared as JSON and sent to the API endpoint. (API coming in a future assignment.)",
-            "info"
+            "All submissions were sent to the editorial review queue successfully!",
+            "success"
           );
           $scope.submissions = [];
         });
-      }
-    });
+      })
+      .fail(function(jqXHR) {
+        $scope.$apply(function() {
+          let message = "Some submissions could not be sent. Make sure the Node.js server is running (node js/editorial.js).";
+
+          if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+            message = jqXHR.responseJSON.message;
+          }
+
+          showMessage(message, "danger");
+        });
+      });
   };
 
   // SHOW MESSAGE - displays an alert banner using jQuery.
