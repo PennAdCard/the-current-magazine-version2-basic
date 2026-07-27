@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="returnsApp">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Simple Magazine | Returns
+  </title>
+
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+
+  <!-- jQuery -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
+  ></script>
+
+  <!-- AngularJS -->
+  <script
+    src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"
+  ></script>
+
+  <!-- Project stylesheet -->
+  <link
+    rel="stylesheet"
+    href="css/style.css"
+  >
+</head>
+
+<body ng-controller="ReturnsController">
+
+  <!-- Navigation -->
+  <nav
+    class="navbar navbar-expand-md navbar-dark bg-primary"
+  >
+    <div class="container">
+
+      <a
+        class="navbar-brand"
+        href="index.html"
+      >
+        Simple Magazine
+      </a>
+
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainMenu"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div
+        class="collapse navbar-collapse"
+        id="mainMenu"
+      >
+        <ul class="navbar-nav ms-auto">
+
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="index.html"
+            >
+              Home
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="content.html"
+            >
+              Content &amp; Products
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="members.html"
+            >
+              Member Sign-Up
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="cart.html"
+            >
+              Shopping Cart
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="billing.html"
+            >
+              Billing Details
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              class="nav-link active"
+              href="returns.html"
+            >
+              Returns
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="publish.html"
+            >
+              Publish Options
+            </a>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page header -->
+  <header class="small-header text-center">
+    <div class="container">
+      <h1>Product Returns</h1>
+
+      <p>
+        Search for a product and submit a complete
+        return request.
+      </p>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="container my-5">
+
+    <!-- Success or error message -->
+    <div
+      id="returnMessage"
+      class="alert d-none"
+    ></div>
+
+    <div class="row g-4">
+
+      <!-- Product search -->
+      <section class="col-lg-5">
+        <div class="checkout-panel">
+
+          <h2>Find a Product</h2>
+
+          <p class="text-muted">
+            jQuery filters the product JSON as you type.
+          </p>
+
+          <div class="input-group mb-3">
+
+            <span class="input-group-text">
+              🔎
+            </span>
+
+            <input
+              id="returnSearch"
+              class="form-control"
+              placeholder="Search by name, category, or product ID"
+            >
+
+            <button
+              id="clearReturnSearch"
+              class="btn btn-outline-secondary"
+              type="button"
+            >
+              Clear
+            </button>
+
+          </div>
+
+          <!-- Product cards are added by returns.js -->
+          <div
+            id="returnProductList"
+            class="row g-3"
+          ></div>
+
+        </div>
+      </section>
+
+      <!-- Return form -->
+      <section class="col-lg-7">
+
+        <div class="checkout-panel">
+
+          <h2>Return Request</h2>
+
+          <!-- Displayed before a product is selected -->
+          <div
+            ng-if="!selectedProduct"
+            class="alert alert-info"
+          >
+            Choose a product from the search results.
+          </div>
+
+          <!-- Selected product information -->
+          <div
+            class="selected-return-product mb-4"
+            ng-if="selectedProduct"
+          >
+            <img
+              ng-src="{{selectedProduct.image}}"
+              alt=""
+              class="return-product-image"
+            >
+
+            <div>
+              <h3 class="h5 mb-1">
+                {{selectedProduct.title}}
+              </h3>
+
+              <div>
+                {{selectedProduct.price | currency}}
+                ·
+                {{selectedProduct.category}}
+              </div>
+            </div>
+          </div>
+
+          <!-- Return request form -->
+          <form
+            name="returnForm"
+            ng-submit="submitReturn()"
+            novalidate
+          >
+
+            <!-- Order number -->
+            <div class="mb-3">
+              <label
+                class="form-label"
+                for="orderNumber"
+              >
+                Order Number *
+              </label>
+
+              <input
+                id="orderNumber"
+                class="form-control"
+                ng-model="request.orderNumber"
+                ng-class="{
+                  'is-invalid':
+                    attempted && errors.orderNumber
+                }"
+                placeholder="ORD-1001"
+              >
+
+              <div class="invalid-feedback">
+                Enter an order number.
+              </div>
+            </div>
+
+            <!-- Customer email -->
+            <div class="mb-3">
+              <label
+                class="form-label"
+                for="customerEmail"
+              >
+                Customer Email *
+              </label>
+
+              <input
+                type="email"
+                id="customerEmail"
+                class="form-control"
+                ng-model="request.customerEmail"
+                ng-class="{
+                  'is-invalid':
+                    attempted && errors.customerEmail
+                }"
+              >
+
+              <div class="invalid-feedback">
+                Enter a valid email.
+              </div>
+            </div>
+
+            <!-- Return reason -->
+            <div class="mb-3">
+              <label
+                class="form-label"
+                for="reason"
+              >
+                Reason for Return *
+              </label>
+
+              <select
+                id="reason"
+                class="form-select"
+                ng-model="request.reason"
+                ng-class="{
+                  'is-invalid':
+                    attempted && errors.reason
+                }"
+              >
+                <option value="">
+                  Choose a reason
+                </option>
+
+                <option>
+                  Wrong item ordered
+                </option>
+
+                <option>
+                  Item not as described
+                </option>
+
+                <option>
+                  Duplicate purchase
+                </option>
+
+                <option>
+                  Technical problem
+                </option>
+
+                <option>
+                  Other
+                </option>
+              </select>
+
+              <div class="invalid-feedback">
+                Choose a return reason.
+              </div>
+            </div>
+
+            <!-- Product condition -->
+            <div class="mb-3">
+              <label
+                class="form-label"
+                for="condition"
+              >
+                Product Condition *
+              </label>
+
+              <select
+                id="condition"
+                class="form-select"
+                ng-model="request.condition"
+                ng-class="{
+                  'is-invalid':
+                    attempted && errors.condition
+                }"
+              >
+                <option value="">
+                  Choose condition
+                </option>
+
+                <option>
+                  Unopened
+                </option>
+
+                <option>
+                  Opened but unused
+                </option>
+
+                <option>
+                  Used
+                </option>
+
+                <option>
+                  Damaged
+                </option>
+
+                <option>
+                  Digital product
+                </option>
+              </select>
+
+              <div class="invalid-feedback">
+                Choose the product condition.
+              </div>
+            </div>
+
+            <!-- Additional details -->
+            <div class="mb-3">
+              <label
+                class="form-label"
+                for="details"
+              >
+                Additional Return Details *
+              </label>
+
+              <textarea
+                id="details"
+                class="form-control"
+                rows="4"
+                ng-model="request.details"
+                ng-class="{
+                  'is-invalid':
+                    attempted && errors.details
+                }"
+                placeholder="Explain the issue in at least 10 characters."
+              ></textarea>
+
+              <div class="invalid-feedback">
+                Provide at least 10 characters.
+              </div>
+            </div>
+
+            <!-- Submit button -->
+            <button
+              type="submit"
+              class="btn btn-danger btn-lg"
+              ng-disabled="submitting"
+            >
+              {{
+                submitting
+                  ? "Submitting..."
+                  : "Submit Return Request"
+              }}
+            </button>
+
+          </form>
+        </div>
+
+        <!-- JSON preview -->
+        <div class="json-box mt-4">
+          <h3>Return JSON Preview</h3>
+
+          <pre>{{returnPreview() | json}}</pre>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer
+    class="bg-dark text-white text-center py-4"
+  >
+    <p class="mb-0">
+      &copy; 2026 Simple Magazine
+    </p>
+  </footer>
+
+  <!-- Bootstrap JavaScript -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  ></script>
+
+  <!-- Returns JavaScript -->
+  <script src="js/returns.js"></script>
+
+</body>
+</html>
