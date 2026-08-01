@@ -1,2 +1,5 @@
-# macOS creates this file automatically. Git does not need it.
+node_modules/
+.env
+npm-debug.log*
 .DS_Store
+coverage/
