@@ -1,245 +1,454 @@
 // This file controls the Publish Options page.
 //
-// AngularJS manages the form state, submission history, and service calls.
-// jQuery loads saved articles from localStorage into the article dropdown.
-// JavaScript performs client-side field validation before submission.
-// jQuery's $.ajax() sends the JSON payload to the Node.js RESTful API endpoint.
+// AngularJS manages the form state, submission history, and API calls.
+// jQuery loads saved articles from localStorage and displays messages.
+// Submissions are saved directly to MongoDB through the Express API.
 
-// ANGULARJS APPLICATION
 const publishApp = angular.module("publishApp", []);
 
-publishApp.controller("PublishController", function($scope, $http) {
+publishApp.controller(
+  "PublishController",
+  function ($scope, $http) {
+    // Articles displayed in the article dropdown.
+    $scope.availableArticles = [];
 
-  // STATE - AngularJS keeps track of all page data here.
-
-  // The list of articles available to publish.
-  // jQuery will populate this from localStorage after the page loads.
-  $scope.availableArticles = [];
-
-  // The current form values, bound to inputs via ng-model.
-  $scope.formData = {
-    articleId: "",
-    publicationDate: "",
-    channels: {
-      web: false,
-      email: false,
-      social: false,
-      print: false
-    },
-    reviewStatus: "",
-    editorName: "",
-    editorEmail: "",
-    editorialNotes: ""
-  };
-
-  // Validation error flags - set to true by validateForm() when a field is missing.
-  $scope.fieldErrors = {};
-
-  // Whether to show the green success banner.
-  $scope.submitSuccess = false;
-
-  // The list of completed submissions shown in the sidebar.
-  $scope.submissions = [];
-
-  // JQUERY - load saved articles from localStorage into the dropdown.
-  // This connects the Publish page to the Content & Products page.
-  $(document).ready(function() {
-    const savedData = localStorage.getItem("simpleMagazineArticles");
-
-    if (savedData !== null) {
-      try {
-        const parsed = JSON.parse(savedData);
-
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Use $scope.$apply so AngularJS picks up the jQuery change.
-          $scope.$apply(function() {
-            $scope.availableArticles = parsed;
-          });
-        }
-      } catch (error) {
-        console.error("Could not load articles from localStorage.", error);
-      }
-    }
-
-    // If no articles exist in localStorage, add placeholder options
-    // so the dropdown is not completely empty during a demo.
-    if ($scope.availableArticles.length === 0) {
-      $scope.$apply(function() {
-        $scope.availableArticles = [
-          { articleCode: "ART-001", title: "5 Digital Tools That Actually Save You Time" },
-          { articleCode: "ART-002", title: "How to Build a Study Habit That Sticks" },
-          { articleCode: "ART-003", title: "Meet the Neighbors Cleaning Up Riverside Park" }
-        ];
-      });
-    }
-  });
-
-  // JAVASCRIPT VALIDATION - checks all required fields before submit.
-  // Returns true if valid, false if any required field is missing.
-  function validateForm() {
-    $scope.fieldErrors = {};
-    let valid = true;
-
-    if (!$scope.formData.articleId) {
-      $scope.fieldErrors.articleId = true;
-      valid = false;
-    }
-
-    if (!$scope.formData.publicationDate) {
-      $scope.fieldErrors.publicationDate = true;
-      valid = false;
-    }
-
-    // At least one channel must be checked.
-    const ch = $scope.formData.channels;
-    if (!ch.web && !ch.email && !ch.social && !ch.print) {
-      $scope.fieldErrors.channels = true;
-      valid = false;
-    }
-
-    if (!$scope.formData.reviewStatus) {
-      $scope.fieldErrors.reviewStatus = true;
-      valid = false;
-    }
-
-    if (!$scope.formData.editorName || $scope.formData.editorName.trim() === "") {
-      $scope.fieldErrors.editorName = true;
-      valid = false;
-    }
-
-    // Simple email format check using a regular expression.
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!$scope.formData.editorEmail || !emailPattern.test($scope.formData.editorEmail)) {
-      $scope.fieldErrors.editorEmail = true;
-      valid = false;
-    }
-
-    return valid;
-  }
-
-  // SUBMIT FORM - called by ng-click on the Submit button.
-  // Validates, builds a JSON object, adds it to the submissions list.
-  $scope.submitForm = function() {
-    $scope.submitSuccess = false;
-
-    // Run JavaScript validation first.
-    if (!validateForm()) {
-      showMessage("Please fill in all required fields.", "danger");
-      return;
-    }
-
-    // Build the JSON submission object.
-    const submission = {
-      submissionId: Date.now(),
-      articleId: $scope.formData.articleId,
-      publicationDate: $scope.formData.publicationDate ? String($scope.formData.publicationDate).split("T")[0] : "",
-      channels: angular.copy($scope.formData.channels),
-      reviewStatus: $scope.formData.reviewStatus,
-      editorName: $scope.formData.editorName.trim(),
-      editorEmail: $scope.formData.editorEmail.trim(),
-      editorialNotes: $scope.formData.editorialNotes.trim(),
-      submittedAt: new Date().toISOString()
-    };
-
-    // Add the submission to the AngularJS state array.
-    $scope.submissions.push(submission);
-
-    // Show success banner and clear the form.
-    $scope.submitSuccess = true;
-    showMessage("Article submitted for publication successfully.", "success");
-    $scope.resetForm();
-  };
-
-  // RESET FORM - clears all fields and error flags.
-  $scope.resetForm = function() {
+    // Form values connected to publish.html through ng-model.
     $scope.formData = {
       articleId: "",
       publicationDate: "",
-      channels: { web: false, email: false, social: false, print: false },
+      channels: {
+        web: false,
+        email: false,
+        social: false,
+        print: false
+      },
       reviewStatus: "",
       editorName: "",
       editorEmail: "",
       editorialNotes: ""
     };
+
+    // Validation and page state.
     $scope.fieldErrors = {};
-  };
+    $scope.submitSuccess = false;
+    $scope.submitting = false;
 
-  // REMOVE SUBMISSION - removes one entry from the sidebar list.
-  $scope.removeSubmission = function(index) {
-    $scope.submissions.splice(index, 1);
-  };
+    // Submissions saved during the current browser session.
+    $scope.submissions = [];
 
-  // AJAX - sends all submissions to the real Node.js RESTful API
-  // built in editorial.js, using jQuery's $.ajax().
-  // Each submission is sent as its own POST request to /api/submissions
-  // so it lands in the Editorial Review queue as a Pending item.
-  // jQuery owns the AJAX call itself; AngularJS still owns the page state,
-  // so $scope.$apply() is used to bring jQuery's async result back into Angular.
-  $scope.sendToApi = function() {
-    if ($scope.submissions.length === 0) {
-      showMessage("No submissions to send.", "warning");
-      return;
-    }
+    /*
+      Load articles from localStorage.
 
-    // Build one AJAX request per submission, shaped to match what the
-    // Node.js backend's normalizeSubmission() function expects.
-    const sendPromises = $scope.submissions.map(function(submission) {
-      const payload = {
-        articleId: submission.articleId,
-        articleCode: submission.articleId,
-        articleTitle: submission.articleId,
-        publicationDate: submission.publicationDate,
-        channels: submission.channels,
-        editorName: submission.editorName,
-        editorEmail: submission.editorEmail,
-        editorialNotes: submission.editorialNotes,
-        status: "Pending"
-      };
+      The Content page stores articles using the
+      simpleMagazineArticles key.
+    */
+    $(document).ready(function () {
+      const savedData = localStorage.getItem(
+        "simpleMagazineArticles"
+      );
 
-      // jQuery $.ajax() POST - sends the JSON payload to the Node.js
-      // REST endpoint created in editorial.js.
-      return $.ajax({
-        url: "/api/submissions",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(payload)
-      });
+      if (savedData !== null) {
+        try {
+          const parsed = JSON.parse(savedData);
+
+          if (
+            Array.isArray(parsed) &&
+            parsed.length > 0
+          ) {
+            $scope.$apply(function () {
+              $scope.availableArticles = parsed;
+            });
+          }
+        } catch (error) {
+          console.error(
+            "Could not load articles from localStorage.",
+            error
+          );
+        }
+      }
+
+      /*
+        Use sample articles when localStorage does not
+        contain any saved articles.
+      */
+      if ($scope.availableArticles.length === 0) {
+        $scope.$apply(function () {
+          $scope.availableArticles = [
+            {
+              articleCode: "ART-001",
+              title:
+                "5 Digital Tools That Actually Save You Time"
+            },
+            {
+              articleCode: "ART-002",
+              title:
+                "How to Build a Study Habit That Sticks"
+            },
+            {
+              articleCode: "ART-003",
+              title:
+                "Meet the Neighbors Cleaning Up Riverside Park"
+            }
+          ];
+        });
+      }
     });
 
-    // Wait for every submission to finish sending before updating the page.
-    $.when.apply($, sendPromises)
-      .done(function() {
-        $scope.$apply(function() {
+    /*
+      Validate all required form fields.
+    */
+    function validateForm() {
+      $scope.fieldErrors = {};
+
+      let valid = true;
+
+      if (!$scope.formData.articleId) {
+        $scope.fieldErrors.articleId = true;
+        valid = false;
+      }
+
+      if (!$scope.formData.publicationDate) {
+        $scope.fieldErrors.publicationDate = true;
+        valid = false;
+      }
+
+      const channels =
+        $scope.formData.channels;
+
+      if (
+        !channels.web &&
+        !channels.email &&
+        !channels.social &&
+        !channels.print
+      ) {
+        $scope.fieldErrors.channels = true;
+        valid = false;
+      }
+
+      if (!$scope.formData.reviewStatus) {
+        $scope.fieldErrors.reviewStatus = true;
+        valid = false;
+      }
+
+      if (
+        !$scope.formData.editorName ||
+        $scope.formData.editorName.trim() === ""
+      ) {
+        $scope.fieldErrors.editorName = true;
+        valid = false;
+      }
+
+      const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (
+        !$scope.formData.editorEmail ||
+        !emailPattern.test(
+          $scope.formData.editorEmail
+        )
+      ) {
+        $scope.fieldErrors.editorEmail = true;
+        valid = false;
+      }
+
+      return valid;
+    }
+
+    /*
+      Return the selected article object.
+    */
+    function getSelectedArticle() {
+      return $scope.availableArticles.find(
+        function (article) {
+          return (
+            article.articleCode ===
+            $scope.formData.articleId
+          );
+        }
+      );
+    }
+
+    /*
+      Convert the date input into YYYY-MM-DD.
+    */
+    function formatPublicationDate(dateValue) {
+      if (!dateValue) {
+        return "";
+      }
+
+      if (
+        Object.prototype.toString.call(dateValue) ===
+          "[object Date]" &&
+        !Number.isNaN(dateValue.getTime())
+      ) {
+        const year = dateValue.getFullYear();
+
+        const month = String(
+          dateValue.getMonth() + 1
+        ).padStart(2, "0");
+
+        const day = String(
+          dateValue.getDate()
+        ).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+      }
+
+      return String(dateValue).split("T")[0];
+    }
+
+    /*
+      The MongoDB schema does not include Draft as an
+      editorial status.
+
+      Draft submissions are therefore added to the
+      editorial queue as Pending.
+    */
+    function getApiStatus(reviewStatus) {
+      if (reviewStatus === "Draft") {
+        return "Pending";
+      }
+
+      return reviewStatus || "Pending";
+    }
+
+    /*
+      Submit the publication form.
+
+      This now saves the submission immediately through
+      POST /api/submissions.
+
+      Previously, this function only added the submission
+      to a browser array and did not save it to MongoDB.
+    */
+    $scope.submitForm = function () {
+      $scope.submitSuccess = false;
+
+      /*
+        Prevent duplicate requests when the user clicks
+        the button multiple times.
+      */
+      if ($scope.submitting) {
+        return;
+      }
+
+      if (!validateForm()) {
+        showMessage(
+          "Please fill in all required fields.",
+          "danger"
+        );
+
+        return;
+      }
+
+      const selectedArticle =
+        getSelectedArticle();
+
+      const payload = {
+        articleId:
+          $scope.formData.articleId,
+
+        articleCode:
+          $scope.formData.articleId,
+
+        articleTitle:
+          selectedArticle
+            ? selectedArticle.title
+            : $scope.formData.articleId,
+
+        publicationDate:
+          formatPublicationDate(
+            $scope.formData.publicationDate
+          ),
+
+        channels:
+          angular.copy(
+            $scope.formData.channels
+          ),
+
+        editorName:
+          $scope.formData.editorName.trim(),
+
+        editorEmail:
+          $scope.formData.editorEmail.trim(),
+
+        editorialNotes:
+          $scope.formData.editorialNotes.trim(),
+
+        status:
+          getApiStatus(
+            $scope.formData.reviewStatus
+          )
+      };
+
+      $scope.submitting = true;
+
+      /*
+        Save the submission through the Express API.
+      */
+      $http
+        .post(
+          "/api/submissions",
+          payload
+        )
+
+        .then(function (response) {
+          /*
+            Use the object returned by MongoDB because it
+            contains the generated submission ID and
+            timestamps.
+          */
+          const savedSubmission =
+            response.data;
+
+          /*
+            publish.html displays reviewStatus in the
+            session history, while MongoDB stores status.
+          */
+          savedSubmission.reviewStatus =
+            savedSubmission.status;
+
+          $scope.submissions.push(
+            savedSubmission
+          );
+
+          $scope.submitSuccess = true;
+
           showMessage(
-            "All submissions were sent to the editorial review queue successfully!",
+            "Article saved to MongoDB and added to the editorial review queue.",
             "success"
           );
-          $scope.submissions = [];
-        });
-      })
-      .fail(function(jqXHR) {
-        $scope.$apply(function() {
-          let message = "Some submissions could not be sent. Make sure the Node.js server is running (node js/editorial.js).";
 
-          if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-            message = jqXHR.responseJSON.message;
+          /*
+            Clear the form after the database confirms
+            that the submission was saved.
+          */
+          $scope.resetForm(true);
+        })
+
+        .catch(function (error) {
+          let message =
+            "The submission could not be saved. Make sure the Node.js server and MongoDB are running.";
+
+          if (
+            error.data &&
+            error.data.message
+          ) {
+            message =
+              error.data.message;
           }
 
-          showMessage(message, "danger");
+          showMessage(
+            message,
+            "danger"
+          );
+        })
+
+        .finally(function () {
+          $scope.submitting = false;
         });
-      });
-  };
+    };
 
-  // SHOW MESSAGE - displays an alert banner using jQuery.
-  function showMessage(message, color) {
-    const $box = $("#messageBox");
-    $box.text(message);
-    $box.removeClass("d-none alert-success alert-warning alert-danger alert-info");
-    $box.addClass("alert alert-" + color);
+    /*
+      Reset the publication form.
 
-    setTimeout(function() {
-      $box.addClass("d-none");
-    }, 4000);
+      keepSuccess remains true after a successful save so
+      the green success banner stays visible.
+    */
+    $scope.resetForm = function (
+      keepSuccess
+    ) {
+      $scope.formData = {
+        articleId: "",
+        publicationDate: "",
+        channels: {
+          web: false,
+          email: false,
+          social: false,
+          print: false
+        },
+        reviewStatus: "",
+        editorName: "",
+        editorEmail: "",
+        editorialNotes: ""
+      };
+
+      $scope.fieldErrors = {};
+
+      if (keepSuccess !== true) {
+        $scope.submitSuccess = false;
+      }
+    };
+
+    /*
+      Remove an entry from the browser session history.
+
+      This does not delete the MongoDB submission.
+    */
+    $scope.removeSubmission = function (
+      index
+    ) {
+      $scope.submissions.splice(
+        index,
+        1
+      );
+    };
+
+    /*
+      The old project required users to click
+      "Send All to API" after submitting.
+
+      Submissions are now saved immediately, so this
+      function must not POST them again because doing so
+      would create duplicate MongoDB records.
+    */
+    $scope.sendToApi = function () {
+      if (
+        $scope.submissions.length === 0
+      ) {
+        showMessage(
+          "No submissions have been saved in this session.",
+          "warning"
+        );
+
+        return;
+      }
+
+      showMessage(
+        "All submissions shown here are already saved in MongoDB and available on the Editorial Review page.",
+        "info"
+      );
+    };
+
+    /*
+      Display a Bootstrap alert using jQuery.
+    */
+    function showMessage(
+      message,
+      color
+    ) {
+      const messageBox =
+        $("#messageBox");
+
+      messageBox.text(message);
+
+      messageBox.removeClass(
+        "d-none " +
+        "alert-success " +
+        "alert-warning " +
+        "alert-danger " +
+        "alert-info"
+      );
+
+      messageBox.addClass(
+        "alert alert-" + color
+      );
+
+      setTimeout(function () {
+        messageBox.addClass(
+          "d-none"
+        );
+      }, 5000);
+    }
   }
-
-});
+);
