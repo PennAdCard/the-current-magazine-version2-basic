@@ -14,7 +14,7 @@ const submissionSchema = new mongoose.Schema(
       print: { type: Boolean, default: false }
     },
     editorName: { type: String, required: true },
-    editorEmail: { type: String, required: true },
+    editorEmail: { type: String, required: true, match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Please enter a valid email address."] },
     editorialNotes: { type: String, default: "" },
     reviewNotes: { type: String, default: "" },
     editorNotes: { type: String, default: "" },
